@@ -55,14 +55,13 @@ class Recaptcha {
    * @private
    */
   _handleErrorResponse(request, response) {
-    const error_message = 'Invalid captcha.'
-    response.status(401)
-    if (request.is(['json'])) {
-      return response.json({
-        error_message: error_message
-      });
-    }
-    return response.send(error_message)
+    yield req.withOut('password', 'password_confirm')
+      .andWith({errors: [{
+        message: 'Invalid captcha'
+      }]})
+      .flash()
+
+    res.redirect('back')
   }
 
 }
