@@ -17,7 +17,7 @@ class Recaptcha {
    *
    * @public
    */
-  constructor(recaptchaApi) {
+  constructor (recaptchaApi) {
     this._recaptchaApi = recaptchaApi
   }
 
@@ -32,14 +32,14 @@ class Recaptcha {
    *
    * @public
    */
-  * handle(request, response, next) {
+  * handle (request, response, next) {
     const input = request.only('g-recaptcha-response')
     if (!input['g-recaptcha-response']) {
-      return this._handleErrorResponse(request, response)
+      return this._handleErrorResponse().next(request, response)
     }
     const success = yield this._recaptchaApi.verify(input['g-recaptcha-response'])
     if (success !== true) {
-      return this._handleErrorResponse(request, response)
+      return this._handleErrorResponse().next(request, response)
     }
     yield next
   }
@@ -54,14 +54,14 @@ class Recaptcha {
    *
    * @private
    */
-  _handleErrorResponse(request, response) {
-    yield req.withOut('password', 'password_confirm')
+  * _handleErrorResponse (request, response) {
+    yield request.withOut('password', 'password_confirm')
       .andWith({errors: [{
         message: 'Invalid captcha'
       }]})
       .flash()
 
-    res.redirect('back')
+    response.redirect('back')
   }
 
 }
